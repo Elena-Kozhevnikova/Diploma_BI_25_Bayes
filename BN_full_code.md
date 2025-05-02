@@ -694,3 +694,256 @@ filtered_hub_genes <- hub_gene_df_filtered %>%
   filter(!grepl("^(IG|IGH|IGK|IGL|SLC)", gene))
 write.csv(filtered_hub_genes, "WGCNA_hub_genes_for_Bayesian_network.csv", row.names = FALSE)
 ```
+### BN with gene data (no metabolites so far!):
+```
+library(bnlearn)
+library(Rgraphviz)
+
+# Read your hub gene list
+hub_genes <- read.csv("WGCNA_hub_genes_for_Bayesian_network.csv")
+
+# Extract expression data for hub genes only
+hub_expr <- datExpr[, hub_genes$gene]  # Assuming datExpr is your normalized expression matrix
+
+# Subset only the hub genes (columns) and keep samples as rows
+bn_data <- as.data.frame(datExpr[, colnames(datExpr) %in% hub_genes$gene])
+
+# Learn structure with hill-climbing
+bn_model <- hc(bn_data, score = "bic-g")  # Gaussian for continuous data
+
+# Plot the network
+plot(bn_model, main = "Bayesian Network Structure")
+
+# Bootstrapped structure learning
+boot_strength <- boot.strength(bn_data, algorithm = "hc", R = 100)
+avg_bn <- averaged.network(boot_strength)
+
+# Plot with arc strengths
+par(mar = c(1, 1, 1, 1))  # Reduce margins
+dev.new(width = 10, height = 10)  # Open a larger graphics device (adjust as needed)
+strength.plot(avg_bn, boot_strength, shape = "ellipse")
+
+# Create a blacklist (prevent arcs between genes in same module)
+blacklist <- data.frame(
+  from = hub_genes$gene,
+  to = hub_genes$gene
+)
+
+# Match by connectivity rank
+blue_genes <- hub_genes %>% 
+  filter(module == "blue") %>% 
+  arrange(desc(kWithin)) %>% 
+  pull(gene)
+
+turquoise_genes <- hub_genes %>% 
+  filter(module == "turquoise") %>% 
+  arrange(desc(kWithin)) %>% 
+  pull(gene)
+
+# Create min(n_blue, n_turquoise) pairs
+n_pairs <- min(length(blue_genes), length(turquoise_genes))
+whitelist <- data.frame(
+  from = blue_genes[1:n_pairs],
+  to = turquoise_genes[1:n_pairs]
+)
+
+# Now use in hc() with error handling
+tryCatch({
+  bn <- hc(bn_data, 
+           whitelist = whitelist,
+           blacklist = blacklist,
+           score = "bic-g")
+}, error = function(e) {
+  message("Optimization failed, trying with reduced whitelist")
+  # Fallback to top 3×3 connections
+  whitelist_reduced <- expand.grid(
+    from = head(hub_genes$gene[hub_genes$module == "blue"], 3),
+    to = head(hub_genes$gene[hub_genes$module == "turquoise"], 3)
+  )
+  hc(bn_data, 
+     whitelist = whitelist_reduced,
+     score = "bic-g")
+})
+
+# Assess arc confidence (from bootstrapping)
+print(boot_strength[boot_strength$strength > 0.5 & boot_strength$direction > 0.5, ])
+
+# Plot only high-confidence arcs (e.g., strength > 0.7)
+strength.plot(avg_bn, boot_strength, threshold = 0.7, shape = "ellipse")
+
+# Identify top influencers (nodes with highest out-degree)
+library(igraph)
+bn_igraph <- as.igraph(avg_bn)  # Convert to igraph for centrality
+degree_df <- data.frame(
+  gene = names(degree(bn_igraph, mode = "out")),
+  out_degree = degree(bn_igraph, mode = "out")
+)
+degree_df <- degree_df[order(-degree_df$out_degree), ]
+print(head(degree_df))
+
+# Customize node colors by module
+node_colors <- ifelse(names(avg_bn$nodes) %in% blue_genes, "lightblue",
+                      ifelse(names(avg_bn$nodes) %in% turquoise_genes, "lightgreen", "gray"))
+
+library(igraph)
+bn_igraph <- as.igraph(avg_bn)
+
+# Set vertex sizes
+V(bn_igraph)$size <- 10  # Adjust size as needed
+
+# Plot
+pdf("network_igraph.pdf", width = 40, height = 40)
+plot(bn_igraph, vertex.label.cex = 1.2)
+dev.off()
+
+
+# Plot only high-confidence arcs (e.g., strength > 0.7)
+strength.plot(avg_bn, boot_strength, threshold = 0.7, shape = "ellipse") 
+
+pdf("network_simple.pdf", width = 30, height = 30)  # Very large canvas
+strength.plot(avg_bn, boot_strength, threshold = 0.7, 
+              shape = "ellipse", fontsize = 24)
+dev.off()
+```
+
+# Convert to igraph and calculate centrality
+```
+library(igraph)
+
+# Convert to igraph and calculate centrality
+bn_igraph <- as.igraph(avg_bn)
+
+# Calculate out-degree centrality
+degree_df <- data.frame(
+  gene = names(degree(bn_igraph, mode = "out")),
+  out_degree = degree(bn_igraph, mode = "out")
+)
+degree_df <- degree_df[order(-degree_df$out_degree), ]
+
+# Identify top influencers (top 5%)
+top_influencers <- head(degree_df, n = max(6, round(nrow(degree_df)*0.05)))$gene
+
+# Set visual attributes
+node_colors <- ifelse(
+  names(V(bn_igraph)) %in% blue_genes, "lightblue",
+  ifelse(
+    names(V(bn_igraph)) %in% turquoise_genes, "lightgreen", 
+    "gray"
+  )
+)
+
+# Size nodes by influence (scale degree to 8-15 range)
+V(bn_igraph)$size <- scales::rescale(degree(bn_igraph, mode = "out"), to = c(8, 15))
+
+# Label all nodes
+V(bn_igraph)$label <- names(V(bn_igraph))
+
+# Color labels: red for top influencers, black for others
+label_colors <- ifelse(names(V(bn_igraph)) %in% top_influencers, "red", "black")
+
+# Create the plot
+pdf("fully_labeled_network.pdf", width = 40, height = 40)
+plot(bn_igraph,
+     edge.arrow.size = 2,  # Controls arrowhead size (default: 1)
+     edge.arrow.width = 1.2, # Controls arrowhead width 
+     edge.arrow.mode = 2,    # 2 = directed arrows, 1 = backward, 0 = none
+     vertex.color = node_colors,
+     vertex.label = V(bn_igraph)$label,  # Show all labels
+     vertex.label.color = label_colors,  # Color by influence
+     vertex.label.cex = 3,  # Slightly smaller for all labels
+     vertex.label.font = 15,   # Bold font
+     vertex.shape = "circle", # All nodes as circles
+     edge.arrow.size = 0.3,
+     layout = layout_with_fr(bn_igraph, weights = E(bn_igraph)$weight))  # Weighted layout
+
+# Add enhanced legend
+legend("topleft",
+       legend = c("Blue module", "Turquoise module", "Other", "Top influencer (label)"),
+       pt.bg = c("lightblue", "lightgreen", "gray", NA),
+       col = c(NA, NA, NA, "red"),  # Only show color for influencer text
+       pch = 21,  # All circles
+       pt.cex = 12,
+       text.col = c("black", "black", "black", "red"),  # Match label colors
+       bty = "n")
+
+# Add title with network metrics
+title(paste("Bayesian Network (", length(V(bn_igraph)), "genes,", 
+            length(E(bn_igraph)), "connections)"), cex.main = 5)
+
+dev.off()
+
+# Print top influencers with their degrees
+cat("\nTop influential genes (red labels):\n")
+print(head(degree_df, 10))
+
+# Get edge strengths from your bootstrapping results
+edge_strengths <- boot_strength[boot_strength$strength >= 0.7, ]  # Filter for significant edges
+print(edge_strengths[order(-edge_strengths$strength), ])  # View strongest connections
+```
+
+### Improve edge weight
+```
+library(scales)
+
+# Convert edge strengths to a format igraph can use
+edge_weights <- sapply(E(bn_igraph), function(e) {
+  from <- ends(bn_igraph, e)[1]
+  to <- ends(bn_igraph, e)[2]
+  strength <- boot_strength[boot_strength$from == from & boot_strength$to == to, "strength"]
+  ifelse(length(strength) > 0, round(strength, 2), NA)
+})
+
+pdf("enhanced_network.pdf", width = 20, height = 20)
+plot(bn_igraph,
+     # Nodes
+     vertex.color = node_colors,
+     vertex.size = rescale(degree(bn_igraph), to = c(8, 15)),
+     vertex.label.color = label_colors,
+     
+     # Edges
+     edge.width = edge_weights * 3,
+     edge.color = ifelse(edge_weights > 0.7, "red", "gray60"),
+     edge.arrow.size = 0.6,
+     edge.label = paste0(round(edge_weights, 2)),  # Show exact values
+     edge.label.color = "darkblue",
+     
+     # Layout
+     layout = layout_with_fr,
+     main = paste("Network (Edge width/color = strength; Red = p < 0.3)")
+)
+
+# Add dual legend
+legend("topleft", legend = c("Blue module", "Turquoise module", "Other", "Top influencer"),
+       pt.bg = c("lightblue", "lightgreen", "gray", NA), pch = 21, pt.cex = 1.5, bty = "n")
+
+legend("bottomleft", legend = c("Strong (***)", "Moderate (**)", "Weak (*)"),
+       col = c("red", "orange", "gray60"), lwd = 3, bty = "n")
+dev.off()
+
+# Filter for statistically significant edges (strength >= 0.7)
+significant_edges <- boot_strength[boot_strength$strength >= 0.7, ]
+
+# Sort by strength (most to least significant)
+significant_edges <- significant_edges[order(-significant_edges$strength), ]
+
+# Print results
+print(significant_edges)
+```
+### Getting some p-values (optional)
+```
+# Simulate random networks to create a null distribution
+null_strengths <- replicate(100, {
+  random_data <- bn_data[sample(nrow(bn_data)), ]  # Permuted data
+  random_bn <- hc(random_data)
+  random_strength <- boot.strength(random_data, R = 50, algorithm = "hc")
+  mean(random_strength$strength)  # Average edge strength in random networks
+})
+
+# Calculate p-value for each edge
+boot_strength$p_value <- sapply(boot_strength$strength, function(s) {
+  mean(null_strengths >= s)  # Proportion of random strengths ≥ observed strength
+})
+
+# Print significant edges (p < 0.05)
+print(boot_strength[boot_strength$p_value < 0.05, ])
+```
