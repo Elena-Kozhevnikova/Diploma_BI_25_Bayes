@@ -13,3 +13,10 @@ Inflammatory bowel diseases (IBD) are chronic inflammatory disorders of the gast
 ### The experimental approach described here was influenced by [Agrahari et al., 2018](https://www.nature.com/articles/s41598-018-24758-5#Sec14). 
 ### We used [*bnlearn*](https://www.bnlearn.com/) R package for Bayesian network learning and inference
 
+### Contents
+This repo contains all R code used to generate data and the results as markdown files:
+1. ```1_Data_PReparation.md``` described how individual's data were downloaded and mreged into one gene expression file.
+2. ```2_DGE_WGCNA.md ``` describes differential gene expression and WGCNA analysis
+3. ```3_BN_construction.md``` shows basic network that only contains genes
+4. ```4_Calprotectin_Disease_Prediction.md``` demonstrates how calprotectin and disease state fit into the network and how well our BN predicts these parameters
+5. ```5_Metabolites.md``` shows the impact of fecal metaolites on the BN network
