@@ -1,7 +1,8 @@
+## This code describes differential gene expression and WGCNA
+Its execution requires data generated in the previous step
+
 ## 1. Prepare data
 ```
-setwd("C:/Users/Елена/Downloads/Diploma_2025")
-
 # Load packages
 library(edgeR)
 library(tidyverse)
@@ -437,7 +438,7 @@ for (mod in names(enrichment_results)) {
 
 dev.off()
 ```
-# Double check the modules
+## Double check the modules
 
 ```
 # Check if modules were properly assigned
@@ -534,7 +535,7 @@ hub_gene_df <- do.call(rbind, lapply(names(hub_genes_list), function(mod) {
 }))
 ```
 ## Remove green module
-# Here I removed the green module as it was 99% immunoglobulin genes, which are surely no key regulators
+### Here I removed the green module as it was 99% immunoglobulin genes, which are surely no key regulators
 ```
 # Filter out immunoglobulin genes and solute carriers
 filtered_hub_genes <- hub_gene_df %>%
