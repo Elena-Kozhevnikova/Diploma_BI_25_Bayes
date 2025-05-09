@@ -21,11 +21,11 @@ This repo contains all *R code* used to generate data and the results as markdow
 > [4_Calprotectin_Disease_Prediction.md](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/code/4_Calprotectin_Disease_Prediction.md) demonstrates how calprotectin and disease state fit into the network and how well our BN predicts these parameters  
 > [5_Metabolites.md](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/code/5_Metabolites.md) shows the impact of fecal metaolites on the BN network  
 
-*Data files* used in this project include:
-1.```Israel_metadata.csv``` contain Israeli patients' metadata
-2.```china_metadata.csv``` contain Chinese patient metadata
-3.```Metabolites_Israel.csv``` contail metabolomics data from Israeli patients
-4.```WGCNA_hub_genes_for_Bayesian_network_4_samples.csv``` contain the result of WGCNA on all samples whith no exclusion od outliers
-5.```datExpr.rds``` contains selected gene expression data
+*Data files* used in this project include:  
+1.```Israel_metadata.csv``` contain Israeli patients' metadata  
+2.```china_metadata.csv``` contain Chinese patient metadata  
+3.```Metabolites_Israel.csv``` contail metabolomics data from Israeli patients  
+4.```WGCNA_hub_genes_for_Bayesian_network_4_samples.csv``` contain the result of WGCNA on all samples whith no exclusion od outliers  
+5.```datExpr.rds``` contains selected gene expression data  
 
-*Bigger data files* fc_data.csv containing Isreali patients' gene expression dataset and modified_output.csv containing Chinese gene expression dataset are available by request. Alternatively, these data can be uploaded from its origin for [Israeli] and [Chinese] patients originally described by ([Braun et al., 2024](https://www.nature.com/articles/s41467-024-48106-6)).
+*Bigger data files* fc_data.csv containing Isreali patients' gene expression dataset and modified_output.csv containing Chinese gene expression dataset are available by request. Alternatively, these data can be uploaded from its origin for [Israeli](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE199906) and [Chinese](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE233900) patients originally described by ([Braun et al., 2024](https://www.nature.com/articles/s41467-024-48106-6)).
