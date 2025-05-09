@@ -1,8 +1,8 @@
-### This code analyses metabolites from the stool of CD patients and alignes them within gene expression BN
+## This code analyses metabolites from the stool of CD patients and alignes them within gene expression BN
 It uses the files generated at the previous steps
 :grey_exclamation: NOTE: Metabolites made no meaningfull contributions, so they were not used further on.:grey_exclamation:  
 
-# Prepare data
+## Prepare data
 ```
 library(edgeR)
 library(limma)
@@ -74,7 +74,7 @@ colnames(age_dummies) <- gsub("Age", "Age_", colnames(age_dummies))
 metadata_age_common <- cbind(metadata_age_common, age_dummies)
 ```
 
-# Differential expression analysis
+## Differential expression analysis
 
 ```
 # Create design matrix
