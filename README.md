@@ -12,7 +12,7 @@ Inflammatory bowel diseases (IBD) are chronic inflammatory disorders of the gast
 
 *Keywords* Crohn's disease, Bayesian Networks, WGCNA, gene regulation, metabolism
 
-![GitHub Logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
+![BN_example](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/images/BN_example.jpg))
 
 ### The experimental approach described here was influenced by [Agrahari et al., 2018](https://www.nature.com/articles/s41598-018-24758-5#Sec14). 
 ### We used [*bnlearn*](https://www.bnlearn.com/) R package for Bayesian network learning and inference.
