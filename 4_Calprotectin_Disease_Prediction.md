@@ -315,13 +315,11 @@ ggsave(
 
 simple_lm <- lm(Calprotectin_ug_g ~ ISX + ACTN1 + CECR1 + IFI16 + TMEM120A , data = bn_data_with_calprotectin)
 summary(simple_lm)
+```
 
-######################## END ##############################################
-
-################## FIND PREDICTOR NETWORK ##################################
-
-library(tidyverse)
-
+## Apply BN predictor to another set of CD data
+```
+#Load data
 metadata_china <- read_csv("china_metadata.csv") %>% as.data.frame()
 expression_data <- read_csv("modified_output.csv") %>% as.data.frame()
 
@@ -339,7 +337,6 @@ merged_data <- metadata_china %>%
   ) %>% 
   as.data.frame()
 
-
 # Identify genes in BN but missing in new data
 required_genes <- nodes(fitted_bn_calprotectin)
 missing_genes <- setdiff(required_genes, colnames(merged_data))
@@ -356,13 +353,10 @@ predictions <- predict(
   method = "bayes-lw"
 )
 
-
-library(dplyr)
 # Combine with metadata
 results <- merged_data %>%
   dplyr::select(pn_ID, Patient_group, Age, Gender, CRP_mg_L) %>%
   dplyr::mutate(Predicted_Calprotectin = predictions)
-
 
 china_control_calprotectin <- results$Predicted_Calprotectin[results$Patient_group == "China_urban"]
 china_CD_calprotectin <- results$Predicted_Calprotectin[results$Patient_group == "China_CD"]
@@ -404,69 +398,19 @@ print(final_plot)
 
 # Save high-quality version
 ggsave("predicted_calprotectin_by_group.pdf", width = 10, height = 6, dpi = 300)
+```
 
-######################### END ###########################################
-
-################### PREDICT DISEASE GROUP ##############################
-
+## Predict disease state
+```
 # Here work with this dataset: "bn_data_with_disease_state" 
 
-# 1. Convert Patient Group to a Discrete Node
+# Convert Patient Group to a Discrete Node
 
 bn_data_with_disease_state$disease <- as.factor(bn_data_with_disease_state$disease)
 
-bn_data <- bn_data_with_disease_state %>% 
-  dplyr::select(-disease, disease)
-
-blacklist <- data.frame(
-  from = "disease",
-  to = setdiff(colnames(bn_data), "disease")
-)
-
-bn_model_disease <- hc(
-  bn_data,
-  blacklist = blacklist,  # Enforce biomarkers → disease
-  score = "bic-cg"           
-)
-
-# 3. Bootstrapping with 50 replicates (adjust as needed)
-boot_results_disease <- boot.strength(
-  data = bn_data_with_disease_state,
-  R = 5,
-  algorithm = "hc",
-  algorithm.args = list(
-    blacklist = blacklist,
-    score = "bic-cg"
-  )
-)
-
-# 4. Filter for significant edges (threshold = 0.85)
-significant_edges_disease <- boot_results_disease[
-  boot_results_disease$strength > 0.7 
-  & boot_results_disease$direction > 0.5, ]
-
-print(significant_edges_disease)
-
-# 5. Build consensus network
-consensus_bn_dis <- averaged.network(boot_results_disease, threshold = 0.7)
-
-# 6. Compare original vs consensus network
-par(mfrow = c(1, 2))
-plot(bn_model_disease, main = "Original BN")
-plot(consensus_bn_dis, main = "Consensus BN (Bootstrapped)")
-
-# 7. Verify disease has incoming edges (parents)
-bn_model_disease$nodes$disease$parents
-
-################ NOT FINISHED #######################
-
-############### SET DISCRETE DATA STRUCTURE ###########################
-
-library(bnlearn)
-library(dplyr)
-
-# Convert disease to factor (if not already)
-bn_data_with_disease_state$disease <- as.factor(bn_data_with_disease_state$disease)
+# Remove the gene not present in my test dataframe
+bn_data_with_disease_state <- bn_data_with_disease_state %>%
+  select(-"DHRS4.AS1")
 
 # Identify continuous variables (assuming all except disease are continuous)
 continuous_vars <- names(which(sapply(bn_data_with_disease_state, is.numeric)))
@@ -481,41 +425,68 @@ bn_orig_data_discrete <- bn_data_with_disease_state %>%
           include.lowest = TRUE)
   ))
 
+bn_orig_data_discrete <- bn_orig_data_discrete[, -1]
+
 # Verify structure
 str(bn_orig_data_discrete)
 
 # Blacklist: Block all edges FROM disease
 blacklist <- data.frame(
   from = "disease",
-  to = setdiff(colnames(bn_data_discrete), "disease")
+  to = setdiff(colnames(bn_orig_data_discrete), "disease")
 )
-
-# Optional: Whitelist specific edges (if prior knowledge exists)
-# whitelist <- data.frame(from = c("Biomarker1", "Biomarker2"), to = "disease")
 
 # Learn structure with constraints
 bn_model_orig_discrete <- hc(
   bn_orig_data_discrete,
-  blacklist = blacklist,  # Disease cannot be a parent
-  # whitelist = whitelist,  # Uncomment if using predefined edges
-  score = "bde"           # Discrete data score
+  blacklist = blacklist,
+  score = "aic"
 )
 
 # Verify disease is terminal (no children)
-stopifnot(length(bn_model$nodes$disease$children) == 0)
+stopifnot(length(bn_model_orig_discrete$nodes$disease$children) == 0)
 
 
-# Get edge strengths with 20 bootstrap replicates
+# Get edge strengths with 100 bootstrap replicates
 boot_strengths <- boot.strength(
-  bn_data_discrete,
+  bn_orig_data_discrete,
   algorithm = "hc",
   algorithm.args = list(
     blacklist = blacklist,
-    score = "bde"
+    score = "aic"
   ),
-  R = 5
+  R = 100
 )
 
+# Refine the network using averaged.network with a strength threshold of 0.7
+refined_bn_structure <- averaged.network(boot_strengths, threshold = 0.7)
+
+consensus_dis <- cextend(refined_bn_structure)
+
+fitted_bn_dis <- bn.fit(consensus_dis, data = bn_orig_data_discrete)
+print(fitted_bn_dis)
+
+# Remove calprotectin column to simulate "new" data
+new_data_dis <- bn_orig_data_discrete[, !colnames(bn_orig_data_discrete) %in% "disease"]
+
+# Predict using Bayesian weighting
+predictions <- predict(
+  fitted_bn_dis,
+  node = "disease",
+  data = new_data_dis,
+  method = "bayes-lw"
+)
+
+library(caret)
+
+confusion_matrix <- confusionMatrix(bn_orig_data_discrete$disease, predictions)
+
+# Print the confusion matrix and associated statistics
+print(bn_orig_data_discrete$disease)
+```
+
+## Test the predictor BN using another set of data
+```
 # Filter edges pointing to disease (terminal node)
 disease_edges <- boot_strengths %>%
   filter(to == "disease") %>%
@@ -523,8 +494,7 @@ disease_edges <- boot_strengths %>%
 
 print(disease_edges)
 
-bn_model$nodes$disease$parents
-
+bn_model_orig_discrete$nodes$disease$parents
 
 library(igraph)
 
@@ -536,8 +506,7 @@ module_palette <- c(
   "turquoise" = "#FFFFBA",
   "brown" = "#B5EAD7",
   "green" = "grey"
-  # добавьте остальные модули по необходимости
-)
+ )
 node_names <- V(bn_igraph_disease)$name
 modules_for_nodes <- setNames(rep(NA, length(node_names)), node_names)
 
@@ -549,7 +518,7 @@ node_degrees <- degree(bn_igraph_disease)
 label_colors <- ifelse(node_degrees >= 0.7, "black", "grey")
 V(bn_igraph_disease)$color <- module_palette[modules_for_nodes[V(bn_igraph_disease)$name]]
 
-# Теперь визуализируем граф с цветами
+# Build the graph
 pdf("network_colored_calprotectin_bn_0505disc.pdf", width = 40, height = 40)
 plot(bn_igraph_disease,
      vertex.size = rescale(degree(bn_igraph_disease), to = c(10, 20)),
@@ -567,16 +536,13 @@ legend("bottomleft",
        col = "red", lwd = 3, bty = "n")
 
 dev.off()
+```
 
-
-
-############## FIT DISCRETE DISEASE NODES #############################################
-
+# Do the fit
+```
 
 # Refit the BN with Patient_group as a node
-fitted_bn_disease_disc <- bn.fit(bn_model_orig_discrete, data = bn_orig_data_discrete, method = "mle")  # For discrete nodes
-
-library(tidyverse)
+fitted_bn_disease_disc <- bn.fit(bn_model_orig_discrete, data = bn_orig_data_discrete, method = "bayes")  # For discrete nodes
 
 metadata_china <- read_csv("china_metadata.csv") 
 metadata_china <- metadata_china %>%
@@ -598,106 +564,81 @@ merged_data <- metadata_china %>%
   ) %>% 
   as.data.frame()
 
-# 
-gene_names <- nodes(bn_model)
-gene_names <- gene_names[gene_names != "disease"]  # Exclude target variable
+# Use only genes from the network
+gene_names <- nodes(bn_model_orig_discrete)
+gene_names <- gene_names[gene_names != "disease"]
 
 new_data_prepared <- merged_data %>%
   select(all_of(gene_names), disease)  # Keep only BN-relevant columns 
 
-
-# Get precise level orders for ALL variables from the fitted BN
-var_levels <- sapply(nodes(fitted_bn_disease_disc), function(node) {
-  if(!is.null(fitted_bn_disease_disc[[node]]$prob))
-    levels(fitted_bn_disease_disc[[node]]$prob[[1]])
-  else
-    NULL
-})
-
-# Create fresh dataframe with correct levels
-new_data_corrected <- new_data_prepared %>%
-  mutate(across(
-    all_of(names(var_levels)),
-    ~ {
-      var_name <- cur_column()
-      if(var_name == "disease") {
-        factor(
-          case_when(
-            .x == "China_CD" ~ "Israel_CD",
-            .x == "China_urban" ~ "Israel_control",
-            .x == "China_rural" ~ "Israel_control",
-            TRUE ~ "Israel_control"
-          ),
-          levels = var_levels[["disease"]]
-        )
-      } else {
-        # For genes - ensure perfect level matching
-        factor(
-          as.character(.x),
-          levels = var_levels[[var_name]],
-          ordered = TRUE
-        )
-      }
-    }
+# Rename the patient group from Chinese to Israel
+new_data_prepared <- new_data_prepared %>%
+  mutate(disease = case_when(
+    disease == "China_urban" ~ "Israel_control",
+    disease == "China_rural" ~ "Israel_control",
+    disease == "China_CD"    ~ "Israel_CD",
+    TRUE                      ~ disease # Keep other values as they are
   ))
 
-levels(fitted_bn_disease_disc$WARS$prob[[1]])
-levels(new_data_corrected$WARS)
+# Discretize continuous variables into 3 bins (Low/Medium/High)
+new_data_prepared_discrete <- new_data_prepared %>%
+  mutate(across(
+    all_of(continuous_vars),
+    ~ cut(.x, 
+          breaks = 3, 
+          labels = c("Low", "Medium", "High"),
+          include.lowest = TRUE)
+  ))
+
+new_data_prepared_discrete$disease <- as.factor(new_data_prepared_discrete$disease)
+new_data_prepared_discrete <- as.data.frame(new_data_prepared_discrete)
+
+new_data_for_prediction <- new_data_prepared_discrete[, !(names(new_data_prepared_discrete) %in% "disease")]
 
 predictions <- predict(
   fitted_bn_disease_disc,
   node = "disease",
-  data = new_data_corrected,
+  data = new_data_for_prediction,
   method = "bayes-lw"
 )
 
+print(predictions)
 
-# Check one variable as example
-identical(
-  levels(new_data_discrete$WARS),
-  levels(fitted_bn_disease_disc$WARS$prob[[1]])
-)
+# Create the confusion matrix
 
-# Check all variables
-all(sapply(names(var_levels), function(var) {
-  if(var %in% colnames(new_data_discrete)) {
-    identical(levels(new_data_discrete[[var]]), var_levels[[var]])
-  } else TRUE
-}))
+confusion_matrix <- confusionMatrix(new_data_prepared_discrete$disease, predictions)
 
-levels_in_model <- levels(fitted_bn_disease_disc$WARS$prob) # Access the levels from the probability table
-print(levels_in_model)
+# Print the confusion matrix and associated statistics
+print(confusion_matrix)
 
+# Create the confusion matrix
+conf_matrix <- matrix(c(12, 1, 8, 19), 
+                      nrow = 2,
+                      byrow = TRUE,
+                      dimnames = list(Prediction = c("Israel_CD", "Israel_control"),
+                                      Reference = c("Israel_CD", "Israel_control")))
 
-# Confusion Matrix
-conf_matrix <- table(
-  Predicted = predictions,
-  Actual = bn_orig_data_discrete$disease  # Ensure this uses the same factor levels
-)
-print(conf_matrix)
+# Melt the matrix for ggplot
+melted_matrix <- melt(conf_matrix)
+colnames(melted_matrix) <- c("Prediction", "Reference", "value")
 
-prob_predictions <- predict(
-  fitted_bn_disease_disc,
-  node = "disease",
-  data = new_data_discrete,
-  method = "bayes-lw",
-  prob = TRUE
-)
+# Reorder the factor levels to put Israel_CD first (top)
+melted_matrix$Prediction <- factor(melted_matrix$Prediction, 
+                                   levels = rev(c("Israel_CD", "Israel_control")))
+melted_matrix$Reference <- factor(melted_matrix$Reference,
+                                  levels = c("Israel_CD", "Israel_control"))
 
-prob_matrix <- attr(prob_predictions, "prob")
+# Create the heatmap
+my_plot <- ggplot(melted_matrix, aes(x = Reference, y = Prediction, fill = value)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = value), color = "black", size = 6) +
+  scale_fill_gradient(low = "#00A08A", high = "#FF0000") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 0, vjust = 0.5),
+        panel.grid = element_blank()) +
+  labs(title = "Confusion Matrix Heatmap",
+       x = "Reference", y = "Prediction") +
+  coord_fixed()
 
-library(bnlearn)
-
-# Learn the structure (optional, if you already have a fixed structure)
-# bn_structure <- hc(bn_data_discrete)  # Hill-Climbing algorithm
-
-predictions <- predict(
-  fitted_bn_disease, 
-  node = "Patient_group", 
-  data = bn_data_discrete,
-  method = "bayes-lw"  # Bayesian inference
-)
-
-# Convert to class labels
-predicted_classes <- as.character(predictions)
+ggsave("confusion_matrix_heatmap.pdf", my_plot, width = 5, height = 5)
 ```
