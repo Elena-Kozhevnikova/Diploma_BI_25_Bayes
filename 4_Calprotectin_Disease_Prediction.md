@@ -1,7 +1,7 @@
-### This code tests the Bayesian Network's predictive power
+## This code tests the Bayesian Network's predictive power
 It uses the code the results of previous steps
 
-# Prepare data
+## Prepare data
 ```
 library(bnlearn)
 library(Rgraphviz)
@@ -124,7 +124,7 @@ consensus_bn <- averaged.network(boot_results_calprotectin, threshold = 0.5)
 consensus_bn$nodes$Calprotectin_ug_g$parents
 ```
 
-# Identify calprotectin parents
+## Identify calprotectin parents
 ```
 
 parents <- consensus_bn$nodes$Calprotectin_ug_g$parents
@@ -538,7 +538,7 @@ legend("bottomleft",
 dev.off()
 ```
 
-# Do the fit
+## Do the fit
 ```
 
 # Refit the BN with Patient_group as a node
