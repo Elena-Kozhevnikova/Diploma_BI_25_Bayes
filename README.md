@@ -1,5 +1,9 @@
-## Diploma project by Elena Kozhevnikova
 ## Studying Gene Regulatory Hierarchy in Crohn’s Disease with a Bayesian Network
+> Elena Kozhevnikova
+> Institute of Molecular and Cellular Biology
+> Novosibirsk
+> elena.n.kozhevnikova@gmail.com
+> tg: e_zeste
 
 Some helpful ideas: 
 Applications of Bayesian network with WGCNA eigengenes and PCA
