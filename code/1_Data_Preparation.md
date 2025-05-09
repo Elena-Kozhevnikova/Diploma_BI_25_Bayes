@@ -1,6 +1,6 @@
 # Data aquisition and pre-processing
 
-The Israel patient sequence data was downloaded from here: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE199906
+The Israeli patients' sequence data was downloaded from here: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE199906
 Metabolomic and metadata were downloaded from the aticle supplementary file: https://www.nature.com/articles/s41467-024-48106-6
 
 File processing was performed in command line as follows:
