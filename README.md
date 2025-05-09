@@ -17,7 +17,7 @@ Inflammatory bowel diseases (IBD) are chronic inflammatory disorders of the gast
 This repo contains all *R code* used to generate data and the results as markdown files:
 > [1_Data_PReparation.md](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/code/1_Data_Preparation.md) described how individual's data were downloaded and mreged into one gene expression file.  
 > [2_DGE_WGCNA.md](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/code/2_DGE_WGCNA.md) describes differential gene expression and WGCNA analysis  
-> [3_BN_construction.md](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/code/3_BN_construction.md) shows basic network that only contains genes
+> [3_BN_construction.md](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/code/3_BN_construction.md) shows basic network that only contains genes  
 > [4_Calprotectin_Disease_Prediction.md](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/code/4_Calprotectin_Disease_Prediction.md) demonstrates how calprotectin and disease state fit into the network and how well our BN predicts these parameters  
 > [5_Metabolites.md](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/code/5_Metabolites.md) shows the impact of fecal metaolites on the BN network  
 
