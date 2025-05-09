@@ -2,13 +2,12 @@
 It uses data files generated previously with the code shown in DGE_WCGNA.md in this repo.
 
 ```
-setwd("C:/Users/Елена/Downloads/Diploma_2025")
+
 library(bnlearn)
 library(Rgraphviz)
 library(igraph)
 library(scales)
 library(dplyr)
-
 
 # Read the hub gene list
 hub_genes <- read.csv("WGCNA_hub_genes_for_Bayesian_network_42_samples.csv")
@@ -87,7 +86,6 @@ strength.plot(avg_bn, boot_strength, threshold = 0.7,
               shape = "ellipse", fontsize = 24)
 dev.off()
 
-#################################
 # Convert to igraph and calculate centrality
 library(igraph)
 
@@ -152,7 +150,7 @@ edge_strengths <- boot_strength[boot_strength$strength >= 0.7, ]  # Filter for s
 print(edge_strengths[order(-edge_strengths$strength), ]) 
 ```
 
-# Apply bootstrapping results to the initial network
+## Apply bootstrapping results to the initial network
 ```
 # Choose edges evealed after bootstrapping
 edges_df <- boot_strength %>%
