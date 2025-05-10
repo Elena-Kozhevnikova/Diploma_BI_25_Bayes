@@ -14,7 +14,7 @@ Inflammatory bowel diseases (IBD) are chronic inflammatory disorders of the gast
 
 <img src="https://raw.githubusercontent.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/main/images/BN_example.jpg" alt="Bayesian Network Example" width="1000"/>
 
-### The experimental approach described here was influenced by [Agrahari et al., 2018](https://www.nature.com/articles/s41598-018-24758-5#Sec14). 
+### The experimental approach described here was inspired by [Agrahari et al., 2018](https://www.nature.com/articles/s41598-018-24758-5#Sec14). 
 ### We used [*bnlearn*](https://www.bnlearn.com/) R package for Bayesian network learning and inference.
 
 ### Contents:
