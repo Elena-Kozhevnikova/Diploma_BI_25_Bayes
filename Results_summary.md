@@ -45,7 +45,13 @@ There was no calrotectin data for the Chinese test data set, so this prediction 
 </div>
 
 ### Predict calprotectin levels in the test data form Chinese patients and comapre by disease status
-As there was no calrotectin data for the Chinese test data set, we simply predicted it from our model and tested whether it finds any significant difference among the patient groups:
+As there was no calrotectin data for the Chinese test data set, we simply predicted it from our model and tested whether it finds any significant difference among the patient groups:  
+As was assessed by Wilcoxon test, there was significan difference. As expected, calprotectin is generally higher in patient group.
+![Calprot_pred_patient_group](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/images/Predicted_calprotectin.png)
 
+### Predict disease state in the test data form Chinese patients
+Finally, we performed disease predicion using BN. In order to do so, we discretized gene expression data (used "low", "Medium", and "High" levels) and recunstructed the BN using discrete data. After bootstrapping, we found only one wealk parent of the "disease" node, which was also *ISX* gene. The assessment of the model strength was evaluated by predicting the disease state in test data from Chinese patients and shown as confusion matrix.
+
+#### The first matrix shows prediction in the train data, the second - in the test data
 
 
