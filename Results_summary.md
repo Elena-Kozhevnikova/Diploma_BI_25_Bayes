@@ -1,0 +1,33 @@
+## This file represents the major findings ang quality checks aling the line of investigation.
+Two datasets were used in this study.  
+:white_check_mark: Israeli patients' data contain 42 samples with gene expression, disease status and calprotectin levels, out of which 37 samples also have metabolomic data. This data was used to build the Bayesian Network and prediction model.  
+:white_check_mark: Chinese patient's data contain 40 samples with gene expression and disease status (no calprotectin level!), while metabolomic data has no attribution to the disease status. This group was used to test the model.  
+:round_pushpin: Differential gene expression was performed using age, sex, and disease status.  
+:round_pushpin: WGCNA was performed using age, sex, and disease status plus calprotectin and c-reactive protein levels (continious data).
+
+
+### WGCNA reveald clear gene clusters within about 1100 differentially expressed genes:
+For this analysis, a size of the module was set as 200.  
+
+![image](https://github.com/user-attachments/assets/038a9178-d5e7-4f02-833a-d071802891e1)
+
+### These clusters correlated well with Calprotectin (indicates blood in stool -> inflammation) and diagnosis:
+Interestingly, green cluster correlate also with C-rective protein - a non-specific indicator of systemic inflammation. Given that green cluster contains mostly immunoglubulin genes (199 out of 200), it seems biologically relevant.  
+
+![image](https://github.com/user-attachments/assets/726e182f-a0c6-43ba-b461-acf5afbb045e)
+
+### Gene modules were used to select key node genes based on their impact in the module (20 genes per module).
+All immunoglobulin genes were removed after this step, leaving one node gene from the green module.
+![image](https://github.com/user-attachments/assets/7e17edba-9c0e-4927-ae23-c0cdded67665)
+
+### The selected genes were then used to build the Bayesian Network (BN) using *bnlearn* package
+First, the BN was build only with genes without metabolites and metadata. The edges were averaged out after a 100 bootstraps, and only edges with the strength over 0.7 were used to build the final network.  
+:rainbow: Here the genes are colored by their attribution to the module:
+![image](https://github.com/user-attachments/assets/f0175876-a54c-45a1-acbc-d358c83942b8)
+
+### The genes that comprised the final network were used for GO and KEGG analysis.
+While KEGG revealed only one significant pathway, GO discovered an important realtion of the BN genes to actin dynamics.  
+:microscope: This is a very important finding as we are working on the role of filamentous actin for a while and have shown that it is involved in epithelial barrier disruption in IBD in mice [Borisova et al., 2020](https://www.nature.com/articles/s41598-020-78141-4) and in humans (data yet unpublished and available per request). And the GO result aligns very well with our data on electron and confocal microscopy regarding actin filamnt dynamics.
+![image](https://github.com/user-attachments/assets/003e6b17-9947-4395-979c-4297c3074cc4)
+
+
