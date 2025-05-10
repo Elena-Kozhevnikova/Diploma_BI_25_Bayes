@@ -32,4 +32,13 @@ While KEGG revealed only one significant pathway, GO discovered an important rea
 
 ### The BN disocvered here was next tested for relevance and accuracy by building the predictive model.
 In order to test the relevance of the BN model, we used a separate dataset from Chinese patients to predict calprotectin level (continious factor in metadata) and disease state (categorial factor from metadata).  
+:pencil: Faecal calprotectin has been used to detect intestinal inflammation (colitis or enteritis) and can serve as a biomarker for inflammatory bowel diseases. :pencil:  
+Here is the network including calprotectin:
+![image](https://github.com/user-attachments/assets/bb6dd785-cf8b-4154-bb7e-7b64678aabad)
+
+### Next, the model was used to predict calprotectin from the same Israeli dataset
+![image](https://github.com/user-attachments/assets/28e4c538-ecde-4bea-9e7e-f681684afeef)
+![image](https://github.com/user-attachments/assets/c4386713-6380-48b2-a6b5-4073aa9a344c)
+
+
 
