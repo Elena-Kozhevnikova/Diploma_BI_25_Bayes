@@ -2,7 +2,8 @@
 It uses data files generated previously with the code shown in DGE_WCGNA.md in this repo.
 
 ```
-
+library(clusterProfiler)
+library(org.Hs.eg.db)
 library(bnlearn)
 library(Rgraphviz)
 library(igraph)
@@ -66,7 +67,6 @@ degree_df <- data.frame(
 degree_df <- degree_df[order(-degree_df$out_degree), ]
 print(head(degree_df))
 
-library(igraph)
 bn_igraph <- as.igraph(avg_bn)
 
 # Set vertex sizes
@@ -188,7 +188,7 @@ modules_for_nodes <- setNames(rep(NA, length(node_names)), node_names)
 modules_for_nodes[names(modules_for_nodes) %in% hub_genes$gene] <- 
   hub_genes$module[match(names(modules_for_nodes)[names(modules_for_nodes) %in% 
                                                       hub_genes$gene], hub_genes$gene)]
-# pply palette based on node color
+# apply palette based on node color
 V(bn_igraph)$color <- module_palette[modules_for_nodes[V(bn_igraph)$name]]
 
 # Save the graph
