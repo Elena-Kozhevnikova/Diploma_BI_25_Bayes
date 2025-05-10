@@ -58,3 +58,7 @@ Finally, we performed disease predicion using BN. In order to do so, we discreti
   <img src="https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/images/Confusion_matrix_China.png" alt="Image 2" width="45%" />
 </div>
 
+### Metabolites did not incorporate into BN
+Finally, we assessed metabolites that were differentially changed based on diagnosis, and found only 6 of those that stringly changes expression upon Crohn's Disease. These metabolites were used to build the BN, but did not form any influantial edges.  
+:disappointed_relieved:Thus, metabolites were not further used for analysis.
+![image](https://github.com/user-attachments/assets/01c67da6-0142-4806-a2b7-2f700badbc50)
