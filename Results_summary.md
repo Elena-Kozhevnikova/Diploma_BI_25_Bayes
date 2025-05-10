@@ -1,22 +1,22 @@
 ## This file represents the major findings ang quality checks along the line of investigation.
 Two datasets were used in this study.  
-:white_check_mark: Israeli patients' data contain 42 samples with gene expression, disease status and calprotectin levels, out of which 37 samples also have metabolomic data. This data was used to build the Bayesian Network and prediction model.  
+:white_check_mark: Israeli patients' data contain 42 samples with gene expression in the intestine, disease status and calprotectin levels, out of which 37 samples also have metabolomic data. This data was used to build the Bayesian Network and prediction model.  
 :white_check_mark: Chinese patient's data contain 40 samples with gene expression and disease status (no calprotectin level!), while metabolomic data has no attribution to the disease status. This group was used to test the model.  
-:round_pushpin: Differential gene expression was performed using age, sex, and disease status.  
-:round_pushpin: WGCNA was performed using age, sex, and disease status plus calprotectin and c-reactive protein levels (continious data).
+:round_pushpin: Differential gene expression was performed using age, sex, and disease status in the design.  
+:round_pushpin: WGCNA was performed using age, sex, and disease status plus calprotectin and C-reactive protein levels (continious data).
 
 
 ### WGCNA reveald clear gene clusters within about 1100 differentially expressed genes:
-For this analysis, a size of the module was set as 200.  
+For this analysis, a size of the module was set to 200.  
 
 ![image](https://github.com/user-attachments/assets/038a9178-d5e7-4f02-833a-d071802891e1)
 
-### These clusters correlated well with Calprotectin (indicates blood in stool -> inflammation) and diagnosis:
+### These clusters correlated well with Calprotectin (indicates inflammation) and diagnosis:
 Interestingly, green cluster correlate also with C-rective protein - a non-specific indicator of systemic inflammation. Given that green cluster contains mostly immunoglubulin genes (199 out of 200), it seems biologically relevant.  
 
 ![image](https://github.com/user-attachments/assets/726e182f-a0c6-43ba-b461-acf5afbb045e)
 
-### Gene modules were used to select key node genes based on their impact in the module (20 genes per module).
+### Gene modules were used to select key node genes based on their impact on the module (20 genes per module).
 All immunoglobulin genes were removed after this step, leaving one node gene from the green module.
 ![image](https://github.com/user-attachments/assets/7e17edba-9c0e-4927-ae23-c0cdded67665)
 
@@ -27,7 +27,7 @@ First, the BN was build only with genes without metabolites and metadata. The ed
 
 ### The genes that comprised the final network were used for GO and KEGG analysis.
 While KEGG revealed only one significant pathway, GO discovered an important realtion of the BN genes to actin dynamics.  
-:microscope: This is a very important finding as we are working on the role of filamentous actin for a while and have shown that it is involved in epithelial barrier disruption in IBD in mice [Borisova et al., 2020](https://www.nature.com/articles/s41598-020-78141-4) and in humans (data yet unpublished and available per request). And the GO result aligns very well with our data on electron and confocal microscopy regarding actin filamnt dynamics.
+:microscope: This is a very important finding as we have been working on the role of filamentous actin in IBD for a while and have shown that it is involved in epithelial barrier disruption upon colitis in mice [Borisova et al., 2020](https://www.nature.com/articles/s41598-020-78141-4) and in humans (data yet unpublished and available per request). And the GO result aligns very well with our data on electron and confocal microscopy regarding actin filamnt dynamics.
 ![image](https://github.com/user-attachments/assets/003e6b17-9947-4395-979c-4297c3074cc4)
 
 ### The BN disocvered here was next tested for relevance and accuracy by building the predictive model.
@@ -38,19 +38,19 @@ Here is the network including calprotectin:
 
 ### Next, the model was used to predict calprotectin from the same Israeli dataset
 :muscle:The most influential gene was *ISX* with bootstrap strength over 0.5.  
-There was no calrotectin data for the Chinese test data set, so this prediction vs real measurements correlation for that data is not shown.
+There was no calrotectin data for the Chinese patients' set, so correlation analysis of the predicted values vs real measurements was not possible.
 <div style="display: flex; gap: 10px;">
   <img src="https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/images/Prediction_correlation.png" alt="Image 1" width="45%" />
   <img src="https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/images/Predictive_genes.png" alt="Image 2" width="45%" />
 </div>
 
 ### Predict calprotectin levels in the test data form Chinese patients and comapre by disease status
-As there was no calrotectin data for the Chinese test data set, we simply predicted it from our model and tested whether it finds any significant difference among the patient groups:  
-As was assessed by Wilcoxon test, there was significan difference. As expected, calprotectin is generally higher in patient group.
+As there was no calrotectin data for the Chinese set, we predicted it with our model based on the gene expression network. We next tested for significant difference among the patient groups.  
+Wilcoxon test suggests that there was significan difference in predicted calprotectin based on patient group. As expected, calprotectin is generally higher in CD patients.
 ![Calprot_pred_patient_group](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/images/Predicted_calprotectin.png)
 
 ### Predict disease state in the test data form Chinese patients
-Finally, we performed disease predicion using BN. In order to do so, we discretized gene expression data (used "low", "Medium", and "High" levels) and recunstructed the BN using discrete data. After bootstrapping, we found only one wealk parent of the "disease" node, which was also *ISX* gene. The assessment of the model strength was evaluated by predicting the disease state in test data from Chinese patients and shown as confusion matrix.
+Finally, we performed disease predicion using BN. In order to do so, we discretized gene expression data (used "low", "Medium", and "High" levels) and reconstructed the BN using discrete data. After bootstrapping, we found only one weak parent of the "disease" node, which was also *ISX* gene. The assessment of the model's strength was evaluated by predicting the disease state in test data from Chinese patients and shown as confusion matrix. As can be seen, our model does not predict CD samples well enough, with overall accuracy of 0.72.
 
 #### The first matrix shows prediction in the train data, the second - in the test data
 <div style="display: flex; gap: 10px;">
@@ -59,6 +59,6 @@ Finally, we performed disease predicion using BN. In order to do so, we discreti
 </div>
 
 ### Metabolites did not incorporate into BN
-Finally, we assessed metabolites that were differentially changed based on diagnosis, and found only 6 of those that stringly changes expression upon Crohn's Disease. These metabolites were used to build the BN, but did not form any influantial edges.  
+Finally, we assessed metabolites that were differentially changed based on diagnosis, and found only 6 of those that differed in Crohn's Disease. These metabolites were used to build the BN (along with the hub genes), but did not form any influential edges.  
 :disappointed_relieved:Thus, metabolites were not further used for analysis.
 ![image](https://github.com/user-attachments/assets/01c67da6-0142-4806-a2b7-2f700badbc50)
