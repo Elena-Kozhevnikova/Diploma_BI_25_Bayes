@@ -35,4 +35,4 @@ This repo contains all *R code* used to generate data and the results as markdow
 
 *Bigger data files* fc_data.csv containing Isreali patients' gene expression dataset and modified_output.csv containing Chinese gene expression dataset are available by request. Alternatively, these data can be uploaded from its origin for [Israeli](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE199906) and [Chinese](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE233900) patients originally described by ([Braun et al., 2024](https://www.nature.com/articles/s41467-024-48106-6)) and processes using [1_Data_PReparation.md](https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/code/1_Data_Preparation.md).
 
-*Results* of this work are presented in ```Results.md``` in this repo.
+*Results* of this work are presented in ```Results_summary.md``` in this repo.
