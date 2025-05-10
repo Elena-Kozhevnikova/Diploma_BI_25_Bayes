@@ -37,8 +37,15 @@ Here is the network including calprotectin:
 ![image](https://github.com/user-attachments/assets/bb6dd785-cf8b-4154-bb7e-7b64678aabad)
 
 ### Next, the model was used to predict calprotectin from the same Israeli dataset
-![image](https://github.com/user-attachments/assets/28e4c538-ecde-4bea-9e7e-f681684afeef)
-![image](https://github.com/user-attachments/assets/c4386713-6380-48b2-a6b5-4073aa9a344c)
+:muscle:The most influential gene was *ISX* with bootstrap strength over 0.5.  
+There was no calrotectin data for the Chinese test data set, so this prediction vs real measurements correlation for that data is not shown.
+<div style="display: flex; gap: 10px;">
+  <img src="https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/images/Prediction_correlation.png" alt="Image 1" width="45%" />
+  <img src="https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/images/Predictive_genes.png" alt="Image 2" width="45%" />
+</div>
+
+### Predict calprotectin levels in the test data form Chinese patients and comapre by disease status
+As there was no calrotectin data for the Chinese test data set, we simply predicted it from our model and tested whether it finds any significant difference among the patient groups:
 
 
 
