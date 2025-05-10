@@ -53,5 +53,8 @@ As was assessed by Wilcoxon test, there was significan difference. As expected, 
 Finally, we performed disease predicion using BN. In order to do so, we discretized gene expression data (used "low", "Medium", and "High" levels) and recunstructed the BN using discrete data. After bootstrapping, we found only one wealk parent of the "disease" node, which was also *ISX* gene. The assessment of the model strength was evaluated by predicting the disease state in test data from Chinese patients and shown as confusion matrix.
 
 #### The first matrix shows prediction in the train data, the second - in the test data
-
+<div style="display: flex; gap: 10px;">
+  <img src="https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/images/Confusion_matrix_Israel.png" alt="Image 1" width="45%" />
+  <img src="https://github.com/Elena-Kozhevnikova/Diploma_BI_25_Bayes/blob/main/images/Confusion_matrix_China.png" alt="Image 2" width="45%" />
+</div>
 
