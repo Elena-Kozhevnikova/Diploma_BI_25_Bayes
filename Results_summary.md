@@ -1,4 +1,4 @@
-## This file represents the major findings ang quality checks aling the line of investigation.
+## This file represents the major findings ang quality checks along the line of investigation.
 Two datasets were used in this study.  
 :white_check_mark: Israeli patients' data contain 42 samples with gene expression, disease status and calprotectin levels, out of which 37 samples also have metabolomic data. This data was used to build the Bayesian Network and prediction model.  
 :white_check_mark: Chinese patient's data contain 40 samples with gene expression and disease status (no calprotectin level!), while metabolomic data has no attribution to the disease status. This group was used to test the model.  
@@ -30,4 +30,6 @@ While KEGG revealed only one significant pathway, GO discovered an important rea
 :microscope: This is a very important finding as we are working on the role of filamentous actin for a while and have shown that it is involved in epithelial barrier disruption in IBD in mice [Borisova et al., 2020](https://www.nature.com/articles/s41598-020-78141-4) and in humans (data yet unpublished and available per request). And the GO result aligns very well with our data on electron and confocal microscopy regarding actin filamnt dynamics.
 ![image](https://github.com/user-attachments/assets/003e6b17-9947-4395-979c-4297c3074cc4)
 
+### The BN disocvered here was next tested for relevance and accuracy by building the predictive model.
+In order to test the relevance of the BN model, we used a separate dataset from Chinese patients to predict calprotectin level (continious factor in metadata) and disease state (categorial factor from metadata).  
 
