@@ -3,7 +3,7 @@
 > Institute of Molecular and Cellular Biology  
 > Novosibirsk  
 > elena.n.kozhevnikova@gmail.com  
-> tg: e_zeste  
+> tg: @ezeste  
 
 This repo describes my Diploma project at the Bioinformatics Institute (2024-2025)  
 Project supervisor: Dr. Maxim Struchalin
