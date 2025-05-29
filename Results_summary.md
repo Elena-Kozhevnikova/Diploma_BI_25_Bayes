@@ -1,7 +1,7 @@
 ## This file represents the major findings ang quality checks along the line of investigation.
 Two datasets were used in this study.  
 :white_check_mark: Israeli patients' data contain 42 samples with gene expression in the intestine, disease status and calprotectin levels, out of which 37 samples also have metabolomic data. This data was used to build the Bayesian Network and prediction model.  
-:white_check_mark: Chinese patient's data contain 40 samples with gene expression and disease status (no calprotectin level!), while metabolomic data has no attribution to the disease status. This group was used to test the model.  
+:white_check_mark: Chinese patients' data contain 40 samples with gene expression and disease status (no calprotectin level!), while metabolomic data has no attribution to the disease status. This group was used to test the model.  
 :round_pushpin: Differential gene expression was performed using age, sex, and disease status in the design.  
 :round_pushpin: WGCNA was performed using age, sex, and disease status plus calprotectin and C-reactive protein levels (continious data).
 
