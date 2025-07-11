@@ -37,11 +37,11 @@ rm temp_output_*
 
 ## Keep patients IDs in ANNN format
 ```
-awk -F',' 'NR==1 {print; next} {
+awk -F',' 'NR==1 {OFS=","; print; next} {
     match($1, /A[0-9]{3}/);
     if (RSTART != 0) {
         $1 = substr($1, RSTART, RLENGTH);
     }
-    print
+    OFS=","; print
 }' extracted_data.csv > fc_data.csv
 ```
