@@ -1,3 +1,7 @@
+# Install packages in command line
+```
+sudo apt install parallel
+```
 # Data aquisition and pre-processing
 
 The Israeli patients' sequence data was downloaded from here: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE199906
@@ -15,10 +19,10 @@ zcat GSM*.txt.gz | awk '
     split($1, parts, "|");        # Split target_id by "|"
     print parts[1], parts[6], $2  # Print transcript_id, gene_name, TPM
   }' > extracted_data.csv
+```
 
-  cat extracted_data.csv --head
-  cat extracted_data.csv
-
+# Collect sample_id, gene_name, tpm, and transcript_id into one file
+```
   echo "sample_id,gene_name,tpm,transcript_id" > final_output.csv
   find . -name "*.txt.gz" -print0 | parallel -0 -j $(nproc) "
     zcat {} | awk -v file=\"{}\" '
@@ -35,11 +39,16 @@ zcat GSM*.txt.gz | awk '
       }
     '
   " >> final_output.csv
+```
 
-
+# Count the number of files (should be 43)
+```
   echo "Total .txt.gz files found:"
   find . -name "*.txt.gz" | wc -l
+```
 
+#
+```
   echo "sample_id,gene_name,tpm,transcript_id" > final_output1.csv
   find . -name "*.txt.gz" -print0 | while IFS= read -r -d $'\0' file; do   echo "Processing: $file" >&2;   zcat "$file" | awk -v file="$file" '
       BEGIN {FS="\t"; OFS=","; processed=0}
@@ -63,7 +72,7 @@ zcat GSM*.txt.gz | awk '
       }
     ' >> final_output1.csv; qz
 ```
-# Change sanple names
+# Change sample names
 ```
   echo "sample_id,gene_name,tpm,transcript_id" > final_output_combined.csv
   find . -name "*.txt.gz" -print0 | while IFS= read -r -d $'\0' file; do   zcat "$file" | awk -v file="$file" '
