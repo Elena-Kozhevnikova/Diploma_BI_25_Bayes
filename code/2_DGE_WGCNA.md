@@ -1,6 +1,19 @@
 ## This code describes differential gene expression and WGCNA
 Its execution requires data generated in the previous step
 
+## Install packages
+```
+# Install Bioconductor manager if not present
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+# Install Bioconductor packages
+BiocManager::install(c("edgeR", "WGCNA", "org.Hs.eg.db", "clusterProfiler"))
+
+# Install CRAN packages
+install.packages(c("tidyverse", "ggplot2", "dplyr"))
+```
+
 ## 1. Prepare data
 ```
 # Load packages
