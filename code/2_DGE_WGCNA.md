@@ -27,7 +27,7 @@ library(dplyr)
 
 
 # Read data with duplicate handling
-count_data <- read_csv("fc_data.csv", show_col_types = FALSE) %>%
+count_data <- read_csv("fc_data.csv", show_col_types = FALSE)%>%
   # Aggregate duplicate genes by summing TPM values
   group_by(gene_name, sample_id) %>%
   summarise(tpm = sum(tpm), .groups = 'drop') %>%
@@ -46,6 +46,22 @@ count_samples <- colnames(count_data)
 
 # For metadata
 metadata <- read.csv("Israel_metadata.csv", row.names = "pn_ID")
+
+metadata$Patient_group <- as.factor(metadata$Patient_group)
+metadata$Gender <- as.factor(metadata$Gender)
+metadata$Age <- as.factor(metadata$Age)
+metadata$Age_merged <- as.character(metadata$Age)
+
+# Объединяем 15_19 и 20_29 в 15_29
+metadata$Age_merged[metadata$Age %in% c("15_19", "20_29")] <- "15_29"
+
+# Объединяем 60_69 и 70_79 в 60_79
+metadata$Age_merged[metadata$Age %in% c("60_69", "70_79")] <- "60_79"
+
+# Преобразуем обратно в фактор с уникальными уровнями
+metadata$Age_merged <- factor(metadata$Age_merged, levels = c("15_29", "30_39", "40_49", "50_59", "60_79"))
+
+metadata$Age <- metadata$Age_merged
 
 # Keep only metadata for samples present in count data
 matched_metadata <- metadata[count_samples, , drop = FALSE]
@@ -69,6 +85,7 @@ common_samples <- intersect(colnames(count_data), rownames(metadata))
 # Subset both objects to matching samples
 count_data <- count_data[, common_samples]
 metadata <- metadata[common_samples, ]
+
 
 # Now create DGEList
 y <- DGEList(counts = count_data, group = metadata$Patient_group)
@@ -148,7 +165,7 @@ datExpr <- datExpr[keep_genes, ]
 
 # Remove with dynamic clusters - leaves only 21 samples, strongly unbalanced
 
-###### FINALLY I KEPT ALL SAMPLES! ##############################
+###### FINALLY KEPT ALL SAMPLES! ##############################
 
 # Choose power based on scale-free topology fit
 powers <- c(seq(4, 10, by = 1), seq(12, 16, by = 2))
@@ -227,7 +244,7 @@ traitData <- metadata[rownames(datExpr), ] %>%
     CRP_mg_L = as.numeric(ifelse(CRP_mg_L == "na", NA, CRP_mg_L)),
     Calprotectin_ug_g = as.numeric(ifelse(Calprotectin_ug_g == "na", NA, Calprotectin_ug_g)),
     # Convert age to factor
-    Age = factor(Age, levels = c("20_29", "30_39", "40_49", "50_59", "60_69", "70_79"))
+    Age = factor(Age, levels = c("15_29", "30_39", "40_49", "50_59", "60_79"))
   )
 
 # Create dummy variables for age
